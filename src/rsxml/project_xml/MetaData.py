@@ -44,6 +44,7 @@ class Meta(NamedTuple):
     value: MetaValue
     type: str = None  # optional
     ext: str = None  # optional
+    locked: bool = False  # optional
 
 
 class MetaData:
@@ -113,7 +114,7 @@ class MetaData:
         if ext not in EXT_TYPES:
             raise ValueError(f"Invalid ext type {ext}. Valid types are {EXT_TYPES}")
 
-    def add_meta(self, name: str, value, meta_type: str = None, ext: str = None) -> None:
+    def add_meta(self, name: str, value, meta_type: str = None, ext: str = None, locked: bool = False) -> None:
         """
         Add a metadata item to the collection.
         The name must be unique and cannot be empty.
@@ -131,7 +132,7 @@ class MetaData:
         if ext is not None:
             self._validate_ext_type(ext)
 
-        self._values.append(Meta(name, value, meta_type, ext))
+        self._values.append(Meta(name, value, meta_type, ext, locked))
 
     def find_meta(self, name: str) -> Meta:
         """
@@ -181,6 +182,7 @@ class MetaData:
                 meta.text.strip() if meta.text else "",
                 meta.get("type"),
                 meta.get("ext"),
+                meta.get("locked") == "true",
             )
         return meta_data
 
@@ -201,10 +203,15 @@ class MetaData:
                     "name": meta.name,
                 },
             )
-            if meta.type is not None:
-                meta_node.set("type", meta.type)
-            if meta.ext is not None:
-                meta_node.set("ext", meta.ext)
+            # Metric tags do not support type or ext attributes
+            if self.inner_tag != "Metric":
+                if meta.type is not None:
+                    meta_node.set("type", meta.type)
+                if meta.ext is not None:
+                    meta_node.set("ext", meta.ext)
+
+            if meta.locked:
+                meta_node.set("locked", "true")
 
             meta_node.text = str(meta.value)
             meta_data.append(meta_node)

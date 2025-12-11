@@ -62,6 +62,7 @@ class Dataset(RSObj):
     path: str
     ds_type: str
     ext_ref: str
+    url: str
 
     def __init__(
         self,
@@ -75,6 +76,7 @@ class Dataset(RSObj):
         description: str = None,
         citation: str = None,
         meta_data: MetaData = None,
+        url: str = None,
     ) -> None:
         """
         Initializes a Dataset instance.
@@ -89,6 +91,7 @@ class Dataset(RSObj):
             description (str, optional): A detailed description of the dataset. Defaults to None.
             citation (str, optional): The citation information for the dataset. Defaults to None.
             meta_data (MetaData, optional): The metadata associated with the dataset. Defaults to None.
+            url (str, optional): The URL for the dataset. Defaults to None.
 
         Returns:
             None
@@ -109,7 +112,8 @@ class Dataset(RSObj):
                             summary="A summary of the dataset",
                             description="A detailed description of the dataset",
                             citation="Citation information",
-                            meta_data=MetaData(...))
+                            meta_data=MetaData(...),
+                            url="https://example.com/dataset")
         """
 
         super().__init__(
@@ -135,6 +139,7 @@ class Dataset(RSObj):
         self.ds_type = ds_type.strip() if ds_type else None
         self.ds_type_attr = ds_type_attr.strip() if ds_type_attr else None
         self.ext_ref = ext_ref.strip() if ext_ref else None
+        self.url = url.strip() if url else None
 
     def __eq__(self, other: RSObj) -> bool:
         if not isinstance(other, Dataset):
@@ -143,7 +148,12 @@ class Dataset(RSObj):
         if not super(Dataset, self).__eq__(other):
             return False
 
-        return self.path == other.path and self.ds_type == other.ds_type and self.ext_ref == other.ext_ref
+        return (
+            self.path == other.path
+            and self.ds_type == other.ds_type
+            and self.ext_ref == other.ext_ref
+            and self.url == other.url
+        )
 
     @staticmethod
     def from_xml(xml_node: ET.Element) -> Dataset:
@@ -169,6 +179,7 @@ class Dataset(RSObj):
             description=rsobj.description,
             citation=rsobj.citation,
             meta_data=rsobj.meta_data,
+            url=xml_node.find("URL").text if xml_node.find("URL") is not None else None,
         )
         return dataset
 
@@ -188,6 +199,8 @@ class Dataset(RSObj):
             xml_node.set("type", self.ds_type_attr)
 
         ET.SubElement(xml_node, "Path").text = self.path
+        if self.url:
+            ET.SubElement(xml_node, "URL").text = self.url
         return xml_node
 
 

@@ -45,7 +45,7 @@ def main(filepath: str):
             bounding_box=BoundingBox(-22, -21, 114, 116),
             filepath="project_bounds.json",
         ),
-        meta_data=MetaData(values=[Meta("Test", "Test Value")]),
+        meta_data=MetaData(values=[Meta("Test", "Test Value"), Meta("LockedMeta", "Locked Value", locked=True)]),
         realizations=[
             Realization(
                 xml_id="test",
@@ -63,6 +63,7 @@ def main(filepath: str):
                         ds_type=GeoPackageDatasetTypes.RASTER,
                         summary="This is a input dataset",
                         description="This is a input dataset",
+                        url="https://example.com/dataset",
                     )
                 ],
                 intermediates=[
