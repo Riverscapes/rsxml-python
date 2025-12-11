@@ -8,9 +8,11 @@ NOTE: In QGIS you should probably use QgsMessageBar or QgsTask's async methods
 - https://api.qgis.org/api/classQgsMessageBar.html
 
 """
+
 import random
 from time import sleep
-from rsxml import ProgressBar, Logger
+
+from rsxml import Logger, ProgressBar
 
 
 def main():
@@ -19,22 +21,22 @@ def main():
     Progress Bars are good for giving the user feedback during a long process
     This is just the simplest way to use them. There are several advanced cases as well
     """
-    log = Logger('progressbar demo')
-    log.info('Starting')
+    log = Logger("progressbar demo")
+    log.info("Starting")
 
     # fill an array with 100 random floating point numbers between 0.1 and 0.5
     work_arr = [random.uniform(0.1, 0.5) for _ in range(100)]
 
     # Create a progress bar that's 50 characters wide with the title 'Progress Bar'
     # with values from 0 to len(work_arr)
-    _prg = ProgressBar(len(work_arr), 50, 'Progress Bar')
+    _prg = ProgressBar(len(work_arr), 50, "Progress Bar")
     for progress, work_item in enumerate(work_arr, start=1):
         _prg.update(progress)
 
         if progress == 9:
             # Pretend element 9 has an error
             _prg.erase()  # we erase a line of stdout so that the progress bar doesn't get doubled in the terminal
-            log.error('Error at element 9')
+            log.error("Error at element 9")
 
         # OUTPUT: STDOUT
         # [info] [progressbar demo] Starting
@@ -54,5 +56,5 @@ def main():
     # [info] [Progress Bar] Completed 100 operations.  Total Time: 30.0 seconds
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,39 +1,40 @@
 import os
+
 # import json
 from rsxml import Logger
-from rsxml.validation import validate_project_file
 from rsxml.project_xml import ProjectValidation
+from rsxml.validation import validate_project_file
 
 
 def main():
-    """ This validation is just raw XML validation to make sure the project file matches the XSD
+    """This validation is just raw XML validation to make sure the project file matches the XSD
     for riverscapes
     """
-    log = Logger('validate')
+    log = Logger("validate")
 
     # First let's see it pass
     # ==================================
     # Open the xml file called data/xml_builder_test.xml in the tests directory
     # and read it into a string
-    xml_file = os.path.join(os.path.dirname(__file__), 'project_04_inputs_VALID.rs.xml')
+    xml_file = os.path.join(os.path.dirname(__file__), "project_04_inputs_VALID.rs.xml")
 
     result, errors = validate_project_file(xml_file)
-    log.info(f'Passed: {result}')
+    log.info(f"Passed: {result}")
     for err in list(errors):
-        log.info(f'Error: {err}')
+        log.info(f"Error: {err}")
 
     # OUTPUT
     # [info] [validate] Passed: True
 
     # Ok, now let's see it fail
     # ==================================
-    xml_file = os.path.join(os.path.dirname(__file__), 'project_04_inputs_NOT_VALID.rs.xml')
+    xml_file = os.path.join(os.path.dirname(__file__), "project_04_inputs_NOT_VALID.rs.xml")
 
     # The errors are rich objects that can tell you w
     result, errors = validate_project_file(xml_file)
-    log.info(f'Passed: {result}')
+    log.info(f"Passed: {result}")
     for err in list(errors):
-        log.info(f'Error: {err}')
+        log.info(f"Error: {err}")
 
     # Output
     # [info] [validate] Passed: False
@@ -48,9 +49,9 @@ def main():
 
     # We can also do a more thorough validation to make sure our project folders are ok
     # ==================================
-    validation = ProjectValidation('/Users/matt/Downloads/16010202/')
-    print('yes')
+    ProjectValidation("/Users/matt/Downloads/16010202/")
+    print("yes")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

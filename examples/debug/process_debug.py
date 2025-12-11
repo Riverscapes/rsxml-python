@@ -10,8 +10,10 @@ If you have matplotlib installed you will get a graph of the process usage in pn
 Note: You need to install psutil and matplotlib `pip install psutil matplotlib` for this to work.
 
 """
-from time import sleep
+
 import tempfile
+from time import sleep
+
 from rsxml import Logger, debug
 
 
@@ -21,27 +23,26 @@ def my_work_method(some_text_arg: str):
     Args:
         some_text_arg (str): _description_
     """
-    log = Logger('my_work_method')
+    log = Logger("my_work_method")
     log.info(some_text_arg)
     sleep(10)
 
 
-if __name__ == '__main__':
-    logmain = Logger('main')
+if __name__ == "__main__":
+    logmain = Logger("main")
 
     # Usully you'd get these from argparse
-    SOME_TEXT_ARG = 'This is some text'
+    SOME_TEXT_ARG = "This is some text"
     DEBUG = True
 
     # Temporary files are just for this example
-    with tempfile.NamedTemporaryFile(suffix='.csv') as f:
-
+    with tempfile.NamedTemporaryFile(suffix=".csv") as f:
         # Here we make a choice to either run our work method normally or in debug mode
         if DEBUG is True:
             # Do the import here so it doesn't cause any errors if we're not debugging
             retcode, max_obj = debug.thread_run(my_work_method, f.name, SOME_TEXT_ARG)
             # It returns some useful information
-            logmain.info('Return code: {}, [Max process usage] {}'.format(retcode, max_obj))
+            logmain.info("Return code: {}, [Max process usage] {}".format(retcode, max_obj))
         else:
             my_work_method(SOME_TEXT_ARG)
 

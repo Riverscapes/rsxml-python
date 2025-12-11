@@ -1,11 +1,10 @@
-""" Testing for validaton module
+"""Testing for validaton module"""
 
-"""
-import unittest
-import platform
 import os
-from rsxml.validation import validate_project_file, validate_xml, fetch_xml
+import unittest
+
 from rsxml import XSD_URL
+from rsxml.validation import fetch_xml, validate_xml
 
 
 class Validation(unittest.TestCase):
@@ -16,13 +15,12 @@ class Validation(unittest.TestCase):
     """
 
     def test_validate_xml(self):
-        """[summary]
-        """
+        """[summary]"""
         xsd_str = fetch_xml(XSD_URL)
         # Open the xml file called data/xml_builder_test.xml in the tests directory
         # and read it into a string
-        xml_file = os.path.join(os.path.dirname(__file__), 'xml_builder_test.xml')
-        with open(xml_file, 'r') as f:
+        xml_file = os.path.join(os.path.dirname(__file__), "xml_builder_test.xml")
+        with open(xml_file, "r") as f:
             xml_str = f.read()
 
         result, errors = validate_xml(xml_str, xsd_str)
@@ -30,13 +28,12 @@ class Validation(unittest.TestCase):
         self.assertEqual(len(errors), 0)
 
     def test_validate_xml_invalid(self):
-        """[summary]
-        """
+        """[summary]"""
         xsd_str = fetch_xml(XSD_URL)
         # Open the xml file called data/xml_builder_test.xml in the tests directory
         # and read it into a string
-        xml_file = os.path.join(os.path.dirname(__file__), 'xml_broken.xml')
-        with open(xml_file, 'r') as f:
+        xml_file = os.path.join(os.path.dirname(__file__), "xml_broken.xml")
+        with open(xml_file, "r") as f:
             xml_str = f.read()
 
         result, errors = validate_xml(xml_str, xsd_str)

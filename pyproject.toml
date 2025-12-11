@@ -39,18 +39,34 @@ urls = { "Source" = "https://github.com/Riverscapes/RiverscapesXML", "Homepage" 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.3.4",
-  "flake8>=7.1.1",
-  "pylint>=2.15.0",
-  "autopep8>=1.7.0",
+  "ruff>=0.1.0",
+  "nox>=2023.4.22",
+  "pre-commit>=3.5.0",
   "termcolor>=2.3.0",
   "jsonschema>=4.15.0",
 ]
+
+[tool.ruff]
+line-length = 140
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"] # pycodestyle, pyflakes, isort, bugbear
+
+[tool.ruff.lint.per-file-ignores]
+"examples/*" = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
 
 [tool.setuptools]
 zip-safe = false
 
 [tool.setuptools.packages.find]
-include = ["rsxml", "rsxml.*"]
+where = ["src"]
+include = ["rsxml*"]
 
 [tool.setuptools.package-data]
 rsxml = ["py.typed"]

@@ -10,119 +10,121 @@ the write() method to write the project XML file to disk.
 
 import tempfile
 from datetime import datetime
-# in your code you would write:
-from rsxml.project_xml import (
-    Project,
-    MetaData,
-    Meta,
-    ProjectBounds,
-    Coords,
-    BoundingBox,
-    Dataset,
-    Geopackage,
-    GeopackageLayer,
-    GeoPackageDatasetTypes,
-    Realization,
-)
+
 # logging is always a good practice
 from rsxml import Logger
 
+# in your code you would write:
+from rsxml.project_xml import (
+    BoundingBox,
+    Coords,
+    Dataset,
+    Geopackage,
+    GeoPackageDatasetTypes,
+    GeopackageLayer,
+    Meta,
+    MetaData,
+    Project,
+    ProjectBounds,
+    Realization,
+)
+
 
 def main(filepath: str):
-    log = Logger('Project')
+    log = Logger("Project")
 
     # Create a new Riverscapes Project from scratch
     project = Project(
-        name='Test Project',
+        name="Test Project",
         proj_path=filepath,
-        project_type='VBET',
-        description='This is a test project',
-        citation='This is a citation',
+        project_type="VBET",
+        description="This is a test project",
+        citation="This is a citation",
         bounds=ProjectBounds(
             centroid=Coords(-21.23, 114.56),
             bounding_box=BoundingBox(-22, -21, 114, 116),
-            filepath='project_bounds.json',
+            filepath="project_bounds.json",
         ),
-        meta_data=MetaData(values=[Meta('Test', 'Test Value')]),
+        meta_data=MetaData(values=[Meta("Test", "Test Value")]),
         realizations=[
             Realization(
-                xml_id='test',
-                name='Test Realization',
-                product_version='1.0.0',
+                xml_id="test",
+                name="Test Realization",
+                product_version="1.0.0",
                 date_created=datetime(2021, 1, 1),
-                summary='This is a test realization',
-                description='This is a test realization',
-                meta_data=MetaData(values=[Meta('Test', 'Test Value')]),
+                summary="This is a test realization",
+                description="This is a test realization",
+                meta_data=MetaData(values=[Meta("Test", "Test Value")]),
                 inputs=[
                     Dataset(
-                        xml_id='input1',
-                        name='InputDS1',
-                        path='datasets/input1.tiff',
+                        xml_id="input1",
+                        name="InputDS1",
+                        path="datasets/input1.tiff",
                         ds_type=GeoPackageDatasetTypes.RASTER,
-                        summary='This is a input dataset',
-                        description='This is a input dataset',
+                        summary="This is a input dataset",
+                        description="This is a input dataset",
                     )
                 ],
                 intermediates=[
                     Dataset(
-                        xml_id='inter1',
-                        name='inter1DS',
-                        path='datasets/inter1.tiff',
+                        xml_id="inter1",
+                        name="inter1DS",
+                        path="datasets/inter1.tiff",
                         ds_type=GeoPackageDatasetTypes.RASTER,
-                        summary='This is a input dataset',
-                        description='This is a input dataset',
+                        summary="This is a input dataset",
+                        description="This is a input dataset",
                     )
                 ],
                 outputs=[
                     Dataset(
-                        xml_id='output1',
-                        name='OutputDS1',
-                        path='datasets/output.tiff',
+                        xml_id="output1",
+                        name="OutputDS1",
+                        path="datasets/output.tiff",
                         ds_type=GeoPackageDatasetTypes.RASTER,
-                        summary='This is a input dataset',
-                        description='This is a input dataset',
+                        summary="This is a input dataset",
+                        description="This is a input dataset",
                     ),
                     Geopackage(
-                        xml_id='output2',
-                        name='OutputDS2',
-                        path='datasets/output.gpkg',
+                        xml_id="output2",
+                        name="OutputDS2",
+                        path="datasets/output.gpkg",
                         layers=[
                             GeopackageLayer(
-                                lyr_name='output2_layer1',
-                                lyr_type='output_layer',
-                                name='OutputDS2 Layer 1',
+                                lyr_name="output2_layer1",
+                                lyr_type="output_layer",
+                                name="OutputDS2 Layer 1",
                                 ds_type=GeoPackageDatasetTypes.VECTOR,
-                                summary='This is a input dataset',
-                                description='This is a input dataset',
+                                summary="This is a input dataset",
+                                description="This is a input dataset",
                             ),
                             GeopackageLayer(
-                                lyr_name='output2_layer2',
-                                name='OutputDS2 Layer 2',
+                                lyr_name="output2_layer2",
+                                name="OutputDS2 Layer 2",
                                 ds_type=GeoPackageDatasetTypes.VECTOR,
-                                summary='This is a input dataset',
-                                description='This is a input dataset',
+                                summary="This is a input dataset",
+                                description="This is a input dataset",
                             ),
                         ],
-                        summary='This is a input dataset',
-                        description='This is a input dataset',
+                        summary="This is a input dataset",
+                        description="This is a input dataset",
                     ),
-                ]
+                ],
             )
-        ]
+        ],
     )
 
     # Write your new XML file to disk
     project.write()
 
-    log.info('done')
+    log.info("done")
 
 
-if __name__ == '__main__':
-    with tempfile.NamedTemporaryFile(prefix='project.rs.', suffix='.xml') as f:
+if __name__ == "__main__":
+    with tempfile.NamedTemporaryFile(prefix="project.rs.", suffix=".xml") as f:
         print("\n\nConsole Output\n========================================================================\n")
         main(f.name)
         print("\n\nProject XML\n========================================================================\n")
-        with open(f.name, 'r', encoding='utf-8') as f:
+        with open(f.name, "r", encoding="utf-8") as f:
             print(f.read())
 
 

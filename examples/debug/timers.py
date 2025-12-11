@@ -6,28 +6,30 @@ Timers are really useful for debugging why your code is slow. You can also use t
 to time how long it takes to do something and then write the results to a csv file.
 
 """
-from time import sleep
-import tempfile
+
 import sqlite3
-from rsxml.debug import Timer, LoopTimer, TimerBuckets, TimerWaypoints
+import tempfile
+from time import sleep
+
 from rsxml import Logger
+from rsxml.debug import LoopTimer, Timer, TimerBuckets, TimerWaypoints
 
 
 def simple():
     """
     Basic Timer
 
-    This is a really simple timer with a date subtraction. 
+    This is a really simple timer with a date subtraction.
     """
-    log = Logger('Simple Timer')
+    log = Logger("Simple Timer")
     # Here is a basic timer. Define it and then call elapsed() to get the time
     _tmr = Timer()
     sleep(1)
 
-    log.info(f'Timer: {_tmr.elapsed()}')
+    log.info(f"Timer: {_tmr.elapsed()}")
     # [info] [Simple Timer] Timer: 1.0054419169900939
 
-    log.info(f'Timer: {_tmr.toString()}')
+    log.info(f"Timer: {_tmr.toString()}")
     # [info] [Simple Timer] Timer: 1.0 seconds
 
 
@@ -35,10 +37,10 @@ def loop_timer():
     """
     Loop Timer
 
-    Loop timers are useful for debugging why for loops are taking so long. 
+    Loop timers are useful for debugging why for loops are taking so long.
     """
-    log = Logger('Loop Timer')
-    _lt = LoopTimer('My Loop Timer', log)
+    log = Logger("Loop Timer")
+    _lt = LoopTimer("My Loop Timer", log)
     for _i in range(10):
         _lt.tick()  # Signal to the loop timer that one iteration has happened
         _lt.progprint()  # print the current status of the loop timer continuously to the loop
@@ -60,19 +62,19 @@ def timer_buckets(csv_file: str):
     everything inside the with statement will be counted as part of the timer.
     """
     _tmr_buckets = TimerBuckets(table_name="debug_table", csv_path=csv_file)
-    conn = sqlite3.connect(':memory:')
+    conn = sqlite3.connect(":memory:")
 
     for i in range(10):
-        arbitrary_columns = {'something': i, 'something_else': f"KEY {i}"}
+        arbitrary_columns = {"something": i, "something_else": f"KEY {i}"}
         _tmr_buckets.tick(arbitrary_columns)
 
-        with TimerBuckets('key1'):
+        with TimerBuckets("key1"):
             sleep(0.2)
 
-        with TimerBuckets('key1'):
+        with TimerBuckets("key1"):
             sleep(0.1)
 
-        with TimerBuckets('key2'):
+        with TimerBuckets("key2"):
             sleep(0.15)
 
     _tmr_buckets.write_csv(csv_file)
@@ -98,19 +100,19 @@ def timer_waypoints():
     Waypoints are a way to track the time between points in your code.
     Think of them like lap markers.
     """
-    log = Logger('Timer Waypoints')
-    log.setlevel('DEBUG')
+    log = Logger("Timer Waypoints")
+    log.setlevel("DEBUG")
 
     _tmr_waypoints = TimerWaypoints()
 
     sleep(1)
-    _tmr_waypoints.timer_break('first thing')
+    _tmr_waypoints.timer_break("first thing")
 
     sleep(3)
-    _tmr_waypoints.timer_break('second thing')
+    _tmr_waypoints.timer_break("second thing")
 
     sleep(2)
-    _tmr_waypoints.timer_break('third thing')
+    _tmr_waypoints.timer_break("third thing")
 
     log.info(_tmr_waypoints.toString())
 
@@ -128,7 +130,7 @@ if __name__ == "__main__":
     simple()
     loop_timer()
 
-    with tempfile.NamedTemporaryFile(suffix='.csv') as f:
+    with tempfile.NamedTemporaryFile(suffix=".csv") as f:
         timer_buckets(f.name)
 
     timer_waypoints()

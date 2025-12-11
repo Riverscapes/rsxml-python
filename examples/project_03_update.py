@@ -4,70 +4,77 @@ and update it by adding some metadata and a realization.
 This is just a basic demonstration. You can also load a
 project XML file and add realizations, datasets, etc. to it.
 """
+
 # in your code you woulf write:
 # from riverscapes import rsxml
-import tempfile
 import os
+import tempfile
+
+from rsxml import Logger
+
 # from datetime import date
 from rsxml.project_xml import (
-    Project,
     Dataset,
+    Project,
 )
-from rsxml import Logger
 
 
 def main(filepath: str):
-    log = Logger('Project')
+    log = Logger("Project")
 
     # open and parse and existing project XML file
     project = Project.load_project(filepath)
 
     # Add some more project metadata
-    project.meta_data.add_meta('Test2', 'Test Value 2')
+    project.meta_data.add_meta("Test2", "Test Value 2")
 
     # Add a dataset
     my_real = project.realizations[0]
     my_real.datasets.append(
         Dataset(
-            xml_id='test2',
-            name='Test Dataset 2',
-            path='test2.gpkg',
-            ds_type='CSV',
-            ext_ref='f23b187a-537b-4dd0-8b71-4b7c4a6e9747:Project/Realizations/Realization#REALIZATION1/Datasets/CSV#TEST2',
-            summary='This is a test dataset 2',
-            description='This is a test dataset 2'
+            xml_id="test2",
+            name="Test Dataset 2",
+            path="test2.gpkg",
+            ds_type="CSV",
+            ext_ref="f23b187a-537b-4dd0-8b71-4b7c4a6e9747:Project/Realizations/Realization#REALIZATION1/Datasets/CSV#TEST2",
+            summary="This is a test dataset 2",
+            description="This is a test dataset 2",
         )
     )
     my_real.inputs.append(
         Dataset(
-            xml_id='test3',
-            name='Test Dataset 3',
-            path='test2.gpkg',
-            ds_type='Vector',
-            ext_ref='f23b187a-537b-4dd0-8b71-4b7c4a6e9747:Project/Realizations/Realization#REALIZATION1/Datasets/Vector#TEST3',
-            summary='This is a test dataset 3',
-            description='This is a test dataset 3'
+            xml_id="test3",
+            name="Test Dataset 3",
+            path="test2.gpkg",
+            ds_type="Vector",
+            ext_ref="f23b187a-537b-4dd0-8b71-4b7c4a6e9747:Project/Realizations/Realization#REALIZATION1/Datasets/Vector#TEST3",
+            summary="This is a test dataset 3",
+            description="This is a test dataset 3",
         )
     )
 
     # Write it to disk
     project.write()
 
-    log.info('done')
+    log.info("done")
 
 
-if __name__ == '__main__':
-    with tempfile.NamedTemporaryFile(prefix='project.rs.', suffix='.xml') as f:
+if __name__ == "__main__":
+    with tempfile.NamedTemporaryFile(prefix="project.rs.", suffix=".xml") as f:
         # Prepopulate the file with the XML from our sample file
-        with open(os.path.join(os.path.dirname(__file__), 'project_03_input.rs.xml'), 'r', encoding='utf-8') as inf:
-            f.write(inf.read().encode('utf-8'))
+        with open(
+            os.path.join(os.path.dirname(__file__), "project_03_input.rs.xml"),
+            "r",
+            encoding="utf-8",
+        ) as inf:
+            f.write(inf.read().encode("utf-8"))
             f.flush()
 
         print("\n\nConsole Output\n========================================================================\n")
         main(f.name)
 
         print("\n\nProject XML\n========================================================================\n")
-        with open(f.name, 'r', encoding='utf-8') as f:
+        with open(f.name, "r", encoding="utf-8") as f:
             print(f.read())
 
 
