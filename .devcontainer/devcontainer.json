@@ -2,6 +2,9 @@
 	"name": "RSXML Python",
 	"image": "mcr.microsoft.com/devcontainers/python:3.12",
 	"features": {
+    "ghcr.io/devcontainers/features/node": {
+      "version": 22
+    },
 		"ghcr.io/devcontainers/features/common-utils:2": {
 			"installZsh": "true",
 			"configureZshAsDefaultShell": "true",
@@ -19,5 +22,5 @@
 			]
 		}
 	},
-	"postCreateCommand": "pip install uv && uv pip install --system -e .[dev]"
+	"postCreateCommand": "bash .devcontainer/post-create.sh"
 }

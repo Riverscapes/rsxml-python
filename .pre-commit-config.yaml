@@ -1,3 +1,16 @@
+# .pre-commit-config.yaml
+#
+# This file configures pre-commit hooks for the project.
+# Pre-commit hooks are scripts that run automatically before each commit
+# to ensure code quality and consistency.
+#
+# To use these hooks:
+# 1. Install pre-commit: pip install pre-commit
+# 2. Install the git hooks: pre-commit install
+# 3. (Optional) Run against all files: pre-commit run --all-files
+#
+# For more information, see https://pre-commit.com/
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
