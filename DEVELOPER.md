@@ -32,11 +32,22 @@ nox
 
 In order to run the examples you will need to install `rsxml`. If you want that installed version to be editable, you can use `pip install -e .` from the root rsxml directory.
 
-## Deploying
+## Release Process
 
-There are two scripts to deploy the package to PyPI:
+1. **Update Changelog**:
+   - Move the content from `[Unreleased]` to a new section with the version number and date in [CHANGELIST.md](CHANGELIST.md).
+   - Ensure `[Unreleased]` is empty but preserved at the top.
 
-- `build.sh` - builds the package and puts it in `dist/`.
-- `deploy.sh` - Push the package to the PyPI server. This script requires `PYPI_TOKEN` environment variable.
+2. **Bump Version**:
+   - Update the version number in [src/rsxml/__version__.py](src/rsxml/__version__.py).
 
-The scripts will automatically install `uv` if it is not present.
+3. **Tag and Push**:
+   - Commit the changes (changelog and version bump).
+   - Create a git tag matching the version (e.g., `v2.2.0`) NOTE THE "v" it is important that the tag start with this.
+   - Push the commit and the tag to GitHub:
+     ```bash
+     git commit -am "Bump version to 2.2.0"
+     git tag v2.2.0
+     git push && git push --tags
+     ```
+   - The [Publish to PyPI](.github/workflows/pypi-publish.yml) GitHub Action will automatically build and deploy the package.
