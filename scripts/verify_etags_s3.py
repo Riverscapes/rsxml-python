@@ -16,8 +16,6 @@ import boto3
 import questionary
 from botocore.exceptions import NoCredentialsError
 
-from rsxml.dotenv import parse_dotenv
-
 
 def upload_file(file_path: str, bucket_name: str, object_name=None, force_multipart=False):
     """Upload a file to an S3 bucket
