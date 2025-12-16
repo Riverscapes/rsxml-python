@@ -24,12 +24,20 @@ class EtagTests(unittest.TestCase):
         data_dir = env["ETAG_TEST_DATA"]
 
         etag_verify = {
-            "cat.jpg": '"a7eac640e7a66bdb9a0855c5137c81e5"',
-            "5mb.zip": '"91eccd44f01401d67e88ffab3ed9bb29"',
-            "100Mb.zip": '"bcae7ed6c3162532280c2a5447ba9484-2"',
-            "262Mb.zip": '"f028a132dcd7c2180b4bd530ce952a8f-6"',
-            "2Gb.zip": '"b61fe85ee6b4ab829b568c5f4453e95c-41"',
+            "cat.jpg": ['"a7eac640e7a66bdb9a0855c5137c81e5"',
+                        '"665bec20e3e85efd5055ecb9ae5a1c99-1"'],
+            "5mb.zip": ['"0bcc4b703f25a9caf1b79316a79555c6"',
+                        '"80ab5d2025dea57e7f6977cef01b0d25-1"'],
+            "100Mb.zip": ['"a7bf4a3167615963ec5216b0ae395792"',
+                          '"3d7a5327d0882dfe163f2176e5619b4c-2"'],
+            "262Mb.zip": ['"4c19ac8705002920e5ef7535fb2f35e1"',
+                          '"12878d9ab1bb5f9e0d35470ebd468f21-6"'],
+            "2Gb.zip": ['"f77c0c2655ccdaf6f6363b981b149fc9"',
+                        '"0d61a9abe6db277e0c84407122404529-41"'],
         }
         for filename, etag in etag_verify.items():
             filename = os.path.join(data_dir, filename)
-            self.assertEqual(etag, calculate_etag(filename))
+            # Standard single part calculation. This will give us the etag form for small files that doesn't end with "-N"
+            self.assertEqual(etag[0], calculate_etag(filename, force_single_part=True))
+            # Force multipart calculation by setting threshold to 0. This ensures we get the multipart etag even for small files.
+            self.assertEqual(etag[1], calculate_etag(filename, force_single_part=False, chunk_thresh_bytes=0))
