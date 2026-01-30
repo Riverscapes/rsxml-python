@@ -34,14 +34,14 @@ class RSPathTests(unittest.TestCase):
         # Linux style paths
         path = "some/path/to/a/file"
         path_parts = parse_rel_path(path)
-        self.assertEqual(path_parts, os.path.join(os.getcwd(), "some/path/to/a/file"))
+        self.assertEqual(path_parts, os.path.normpath(os.path.join(os.getcwd(), "some/path/to/a/file")))
 
         # Windows style paths
         path = "some\\path\\to\\a\\file"
         path_parts = parse_rel_path(path)
 
         if IS_WINDOWS:
-            self.assertEqual(path_parts, os.path.join(os.getcwd(), "some\\path\\to\\a\\file"))
+            self.assertEqual(path_parts, os.path.normpath(os.path.join(os.getcwd(), "some\\path\\to\\a\\file")))
         else:
             self.assertEqual(path_parts, os.path.join(os.getcwd(), "some/path/to/a/file"))
 

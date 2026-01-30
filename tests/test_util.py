@@ -1,5 +1,7 @@
-"""Testing for the vector ops"""
+"""Testing for the util functions"""
 
+import os
+import tempfile
 import unittest
 
 from rsxml import util
@@ -67,3 +69,43 @@ class UtilTest(unittest.TestCase):
         """[summary]"""
         self.assertEqual(util.parse_metadata("key=value"), {"key": "value"})
         self.assertEqual(util.parse_metadata("key=value,key2=value2"), {"key": "value", "key2": "value2"})
+
+    def test_safe_makedirs(self):
+        """Test safe_makedirs utility"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Case 1: Create a new nested directory
+            # Ensure path is deep enough for the sanity check in safe_makedirs
+            # path must have len > 5 and > 2 components
+            new_dir = os.path.join(tmpdir, "subdir", "nested")
+            util.safe_makedirs(new_dir)
+            self.assertTrue(os.path.isdir(new_dir))
+
+            # Case 2: Idempotency (dir already exists)
+            util.safe_makedirs(new_dir)
+            self.assertTrue(os.path.isdir(new_dir))
+
+            # Case 3: File exists with same name
+            # We need a path that is deep enough but points to a file
+            file_path_dir = os.path.join(tmpdir, "conflict_dir")
+            os.makedirs(file_path_dir)
+            file_path = os.path.join(file_path_dir, "conflict_file")
+            with open(file_path, "w", encoding='utf-8') as f:
+                f.write("content")
+
+            with self.assertRaises(Exception) as cm:
+                util.safe_makedirs(file_path)
+            self.assertIn("Can't create directory if there is a file of the same name", str(cm.exception))
+
+        # Case 4: Invalid path (too short or shallow)
+        with self.assertRaises(Exception) as cm:
+            util.safe_makedirs("a")
+        self.assertIn("Invalid path", str(cm.exception))
+
+        if os.name == 'nt':
+            bad_path = "C:\\a"
+        else:
+            bad_path = "/a"
+
+        with self.assertRaises(Exception) as cm:
+            util.safe_makedirs(bad_path)
+        self.assertIn("Invalid path", str(cm.exception))
