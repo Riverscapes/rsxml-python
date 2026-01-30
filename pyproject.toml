@@ -78,5 +78,5 @@ rsxml = ["py.typed"]
 version = { attr = "rsxml.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
 
-[tool.uv]
-dev-dependencies = ["rsxml[dev]"]
+[dependency-groups]
+dev = ["rsxml[dev]"]
