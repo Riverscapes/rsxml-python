@@ -4,6 +4,7 @@ import os
 import tempfile
 import unittest
 
+from pathlib import Path
 from rsxml import util
 
 
@@ -70,37 +71,44 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(util.parse_metadata("key=value"), {"key": "value"})
         self.assertEqual(util.parse_metadata("key=value,key2=value2"), {"key": "value", "key2": "value2"})
 
-    def test_safe_makedirs(self):
-        """Test safe_makedirs utility"""
+    def test_safe_makedirs_basic(self):
+        """Test standard directory creation and idempotency."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Case 1: Create a new nested directory
+            # 1. Create a new nested directory
             # Ensure path is deep enough for the sanity check in safe_makedirs
-            # path must have len > 5 and > 2 components
             new_dir = os.path.join(tmpdir, "subdir", "nested")
             util.safe_makedirs(new_dir)
             self.assertTrue(os.path.isdir(new_dir))
 
-            # Case 2: Idempotency (dir already exists)
+            # 2. Idempotency (dir already exists) - should not fail
             util.safe_makedirs(new_dir)
             self.assertTrue(os.path.isdir(new_dir))
 
-            # Case 3: File exists with same name
-            # We need a path that is deep enough but points to a file
+    def test_safe_makedirs_conflict(self):
+        """Test failure when a file exists with the same name."""
+        with tempfile.TemporaryDirectory() as tmpdir:
             file_path_dir = os.path.join(tmpdir, "conflict_dir")
             os.makedirs(file_path_dir)
             file_path = os.path.join(file_path_dir, "conflict_file")
+
+            # Create a dummy file
             with open(file_path, "w", encoding='utf-8') as f:
                 f.write("content")
 
+            # Try to create a directory with the same name as the file
             with self.assertRaises(Exception) as cm:
                 util.safe_makedirs(file_path)
             self.assertIn("Can't create directory if there is a file of the same name", str(cm.exception))
 
-        # Case 4: Invalid path (too short or shallow)
+    def test_safe_makedirs_validation(self):
+        """Test safety checks for short or shallow paths."""
+        # 1. Invalid short path as string (strict check)
+        # "log" is len 3 (< 5) and 1 component (<= 2)
         with self.assertRaises(Exception) as cm:
-            util.safe_makedirs("a")
+            util.safe_makedirs("log")
         self.assertIn("Invalid path", str(cm.exception))
 
+        # 2. Invalid short/shallow absolute path
         if os.name == 'nt':
             bad_path = "C:\\a"
         else:
@@ -109,3 +117,18 @@ class UtilTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             util.safe_makedirs(bad_path)
         self.assertIn("Invalid path", str(cm.exception))
+
+    def test_safe_makedirs_path_resolution(self):
+        """Test that Path objects are resolved to absolute paths, bypassing strict short-path checks."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                # Path("logs") -> Resolves to C:\...\logs which is long and safe
+                # Note: "logs" as a string would fail the validation check (len < 5)
+                p = Path("logs")
+                util.safe_makedirs(p)
+                self.assertTrue(p.exists())
+                self.assertTrue(p.is_dir())
+            finally:
+                os.chdir(orig_cwd)

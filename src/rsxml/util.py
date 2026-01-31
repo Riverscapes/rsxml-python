@@ -1,19 +1,16 @@
-"""_summary_
+"""Utility functions for file and directory operations, formatting, and metadata parsing.
 
-Raises:
-    Exception: _description_
-    Exception: _description_
-    e: _description_
-    Exception: _description_
-    Exception: _description_
-    Exception: _description_
-    Exception: _description_
+This module provides helper functions for:
+- Batch processing of iterables
+- Safe file and directory removal
+- File comparison using size and MD5 hash
+- Safe recursive directory creation
+- Formatting byte sizes
+- Calculating object memory size
+- Formatting durations in a human-readable way
+- Parsing metadata from strings
 
-Returns:
-    _type_: _description_
-
-Yields:
-    _type_: _description_
+Logging is used for error handling and debugging.
 """
 
 import gc
@@ -22,6 +19,7 @@ import math
 import os
 import shutil
 import sys
+from pathlib import Path
 
 from rsxml.logging.logger import Logger
 
@@ -41,7 +39,7 @@ def batch(iterable, num=1):
     """
     length = len(iterable)
     for ndx in range(0, length, num):
-        yield iterable[ndx : min(ndx + num, length)]
+        yield iterable[ndx: min(ndx + num, length)]
 
 
 def safe_remove_file(file_path):
@@ -125,30 +123,54 @@ def safe_remove_dir(dir_path):
         return False
 
 
-def safe_makedirs(dir_create_path):
-    """safely, recursively make a directory
+def safe_makedirs(dir_to_create: str | Path):
+    """safely, recursively make a directory with logging.
+
+    Includes a safety check to prevent creating directories at the root level or with very short names,
+    which helps avoid accidental filesystem clutter or modification of critical paths.
+
+    If dir_to_create is a Path object, it is resolved to absolute path before checking.
+    If dir_to_create is a string, it is checked as-is (strict).
+
+    Valid paths:
+    - "C:\\Users\\User\\Documents\\Project"
+    - "/home/user/project/data"
+    - Path("logs") (resolves to safe absolute path)
+
+    Invalid paths (Too short or too shallow):
+    - "C:\\a"
+    - "/a"
+    - "logs" (as string)
 
     Arguments:
-        dir_create_path {[type]} -- [description]
+        dir_to_create (str or Path): the directory to create
     """
     log = Logger("MakeDir")
 
-    # Safety check on path lengths
-    if len(dir_create_path) < 5 or len(dir_create_path.split(os.path.sep)) <= 2:
-        raise Exception(f"Invalid path: {dir_create_path}")
+    if isinstance(dir_to_create, Path):
+        path_str = str(dir_to_create.resolve())
+    else:
+        path_str = str(dir_to_create)
 
-    if os.path.exists(dir_create_path) and os.path.isfile(dir_create_path):
-        raise Exception(f"Can't create directory if there is a file of the same name: {dir_create_path}")
+    # Safety check on path lengths - prevents accidental root/shallow folder creation
+    # Check 1: Length must be at least 5 characters
+    # Check 2: Must have more than 2 components (e.g. "a/b" is 2 components. "C:\a" is 2 components)
+    if len(path_str) < 5 or len(path_str.split(os.sep)) <= 2:
+        raise Exception(f"Invalid path: {dir_to_create}")
 
-    if not os.path.exists(dir_create_path):
-        try:
-            log.info(f"Folder not found. Creating: {dir_create_path}")
-            os.makedirs(dir_create_path)
-        except Exception as err:
-            # Possible that something else made the folder while we were trying
-            if not os.path.exists(dir_create_path):
-                log.error(f"Could not create folder: {dir_create_path}")
-                raise err
+    path_to_create = Path(dir_to_create)
+    try:
+        if not path_to_create.exists():
+            log.info(f"Folder not found. Creating: {path_to_create}")
+        path_to_create.mkdir(parents=True, exist_ok=True)
+    except FileExistsError as exc:
+        # pathlib raises FileExistsError if a file exists with the same name
+        if path_to_create.is_file():
+            raise FileExistsError(f"Can't create directory if there is a file of the same name: {dir_to_create}") from exc
+        raise
+    except Exception as err:
+        log.error(f"Could not create folder: {dir_to_create}")
+        raise err
 
 
 def sizeof_fmt(num, suffix="B"):
